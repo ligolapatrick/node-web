@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dating Chat Room</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header id="welcome-header">
+        <h1>Welcome to the Dating Chat Room</h1>
+    </header>
+    <main>
+        <!-- Login Form -->
+        <div id="login-section" class="login-form">
+            <h2>Login</h2>
+            <form id="login-form" action="/login" method="post">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Login</button>
+            </form>
+            <button id="show-register">Register</button>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="register-section" class="register-form" style="display: none;">
+            <h2>Register</h2>
+            <form id="register-form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" required>
+                <label for="gender">Gender:</label>
+                <input type="text" id="gender" name="gender" required>
+                <label for="interests">Interests:</label>
+                <input type="text" id="interests" name="interests" required>
+                <label for="profile-picture">Profile Picture:</label>
+                <input type="file" id="profile-picture" name="profile-picture" accept="image/*">
+                <button type="submit">Register</button>
+            </form>
+            <button id="show-login">Login</button>
+        </div>
+
+        <!-- Chat Room -->
+        <section id="chat-room" style="display: none;">
+            <div id="online-users"></div>
+            <div id="messages"></div>
+            <input type="text" id="message-input" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+            <div id="matches">
+                <h2>Your Matches</h2>
+                <div id="matches-list"></div>
+                <label for="match-type">I'm looking for:</label>
+                <select id="match-type">
+                    <option value="love">Love</option>
+                    <option value="friendship">Friendship</option>
+                    <option value="date">Date</option>
+                    <option value="fun">Fun</option>
+                    <option value="spend a day">Spend a day</option>
+                    <option value="single">Single</option>
+                </select>
+                <button id="search-matches">Search</button>
+                <!-- Dropdown for additional categories -->
+                <div class="dropdown">
+                    <button class="dropbtn">More Categories 💕💋💖</button>
+                    <div class="dropdown-content">
+                        <a href="#" id="singles-room">Singles Room</a>
+                        <a href="#" id="searching-relationship">Searching for Relationship</a>
+                    </div>
+                </div>
+                <!-- Search Bar -->
+                <input type="text" id="search-bar" placeholder="Search users...">
+                <button id="search-button">Search</button>
+            </div>
+            <div id="profile">
+                <h2>Edit Profile</h2>
+                <form id="profile-form">
+                    <label for="profile-password">Password:</label>
+                    <input type="password" id="profile-password" name="password" required>
+                    <label for="profile-age">Age:</label>
+                    <input type="number" id="profile-age" name="age" required>
+                    <label for="profile-gender">Gender:</label>
+                    <input type="text" id="profile-gender" name="gender" required>
+                    <label for="profile-interests">Interests:</label>
+                    <input type="text" id="profile-interests" name="interests" required>
+                    <label for="profile-picture">Profile Picture:</label>
+                    <input type="file" id="profile-picture" name="profile-picture" accept="image/*">
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+            <div id="user-sections">
+                <button id="view-messages">Messages</button>
+                <button id="view-friends">Friends</button>
+                <button id="view-profile-viewers">Profile Viewers</button>
+                <div id="user-messages" style="display: none;">
+                    <button id="view-unread-messages">Unread Messages</button>
+                    <button id="view-all-messages">All Messages</button>
+                    <div id="unread-messages" style="display: none;"></div>
+                    <div id="all-messages" style="display: none;"></div>
+                </div>
+                <div id="user-friends" style="display: none;"></div>
+                <div id="profile-viewers" style="display: none;"></div>
+            </div>
+        </section>
+
+        <!-- User Messages Interface -->
+        <div id="user-messages-interface" style="display: none;">
+            <h2>Messages</h2>
+            <button id="view-unread-messages">Unread Messages</button>
+            <button id="view-all-messages">All Messages</button>
+            <div id="unread-messages" style="display: none;"></div>
+            <div id="all-messages" style="display: none;"></div>
+        </div>
+    </main>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
