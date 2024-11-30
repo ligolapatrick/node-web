@@ -9,7 +9,6 @@ const db = require('./database');
 const path = require('path');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
-const git = require('git');
 
 const app = express();
 const server = http.createServer(app);
@@ -175,7 +174,68 @@ io.on('connection', (socket) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+});
+app.post('/update-location', (req, res) => {
+  const userId = req.user.id;  // Assuming user is authenticated
+  const { latitude, longitude } = req.body;
+
+  const query = `UPDATE users SET latitude = ?, longitude = ? WHERE id = ?`;
+  db.run(query, [latitude, longitude, userId], (err) => {
+    if (err) {
+      return res.status(500).send('Error updating location');
+    }
+    res.status(200).send('Location updated');
+  });
+});
+const getNearbyUsers = (latitude, longitude, radius, callback) => {
+  const query = `
+    SELECT *, (
+      6371 * acos(
+        cos(radians(?)) *
+        cos(radians(latitude)) *
+        cos(radians(longitude) - radians(?)) +
+        sin(radians(?)) *
+        sin(radians(latitude))
+      )
+    ) AS distance
+    FROM users
+    HAVING distance < ?
+    ORDER BY distance
+  `;
+
+  db.all(query, [latitude, longitude, latitude, radius], (err, rows) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, rows);
+  });
+};
+
+// Example usage in a route
+app.get('/nearby-matches', (req, res) => {
+  const { latitude, longitude } = req.user;  // Assuming user is authenticated
+  const radius = 50;  // 50 km radius
+
+  getNearbyUsers(latitude, longitude, radius, (err, matches) => {
+    if (err) {
+      return res.status(500).send('Error fetching matches');
+    }
+    res.status(200).json(matches);
+  });
+});
+// Assuming you have a users table with a 'category' column
+
+app.get('/category/:category', (req, res) => {
+  const category = req.params.category;
+
+  const query = `SELECT * FROM users WHERE category = ?`;
+  db.all(query, [category], (err, rows) => {
+    if (err) {
+      return res.status(500).send('Error fetching users in category');
+    }
+    res.status(200).json(rows);
+  });
 });

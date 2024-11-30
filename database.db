@@ -11,5 +11,4 @@ db.serialize(() => {
 module.exports = db;
 
 const dbUrl = process.env.DATABASE_URL;
-
-ALTER TABLE users ADD COLUMN category TEXT;
+const db = new sqlite3.Database(dbUrl);
