@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Courses | Patrick University</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: url('images/campus.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: rgba(255,255,255,0.95);
+      border-radius: 12px;
+    }
+
+    .course {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      padding: 15px;
+      cursor: pointer;
+      background-color: #f9f9f9;
+      transition: background 0.3s;
+    }
+
+    .course:hover {
+      background-color: #eef;
+    }
+
+    .details {
+      display: none;
+      margin-top: 10px;
+      padding-left: 10px;
+      border-left: 3px solid #003366;
+    }
+
+    h2 {
+      color: #003366;
+    }
+
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .pagination button {
+      margin: 0 5px;
+      padding: 8px 12px;
+      background-color: #003366;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background-color: #0055aa;
+    }
+
+    .pagination button:hover {
+      background-color: #0055aa;
+    }
+    /* Mobile-first base styles are already defined above */
+
+/* Tablets (portrait and landscape) */
+@media (max-width: 768px) {
+  .container {
+    margin: 20px;
+    padding: 15px;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .course {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+
+  .details p {
+    font-size: 0.9rem;
+  }
+
+  .pagination button {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .course {
+    font-size: 0.9rem;
+  }
+
+  .details {
+    padding-left: 5px;
+  }
+
+  .pagination button {
+    padding: 5px 8px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1100px;
+  }
+
+  .course {
+    font-size: 1rem;
+  }
+
+  .details p {
+    font-size: 1rem;
+  }
+
+  .pagination button {
+    font-size: 1rem;
+  }
+}
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #06365e;
+      padding: 15px 30px;
+      color: white;
+      position: relative;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      flex-grow: 1;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+      <header>
+    <img src="images/logo.png" alt="Patrick University Logo">
+    <h1>Patrick University</h1>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  </header>
+  
+  <div class="container">
+    <h2>Available Courses</h2>
+    <div id="courseList"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <script>
+    const courses = [
+      { title: "Diploma in Computer Science", fee: "MWK 450,000", duration: "2 years", description: "Programming, databases, web development." },
+      { title: "Diploma in Community Development", fee: "MWK 400,000", duration: "2 years", description: "Social work, project planning, engagement." },
+      { title: "Certificate in ICT Fundamentals", fee: "MWK 250,000", duration: "6 months", description: "Computer basics, internet, office apps." },
+      { title: "Diploma in Business Administration", fee: "MWK 420,000", duration: "2 years", description: "Management, finance, marketing." },
+      { title: "Certificate in Web Design", fee: "MWK 300,000", duration: "6 months", description: "HTML, CSS, UI/UX basics." },
+      { title: "Diploma in Public Health", fee: "MWK 430,000", duration: "2 years", description: "Health systems, epidemiology." },
+      { title: "Certificate in Graphic Design", fee: "MWK 280,000", duration: "6 months", description: "Photoshop, Illustrator, branding." },
+      { title: "Diploma in Agriculture", fee: "MWK 410,000", duration: "2 years", description: "Crop science, agribusiness." },
+      { title: "Certificate in Entrepreneurship", fee: "MWK 260,000", duration: "6 months", description: "Startup skills, business planning." },
+      { title: "Diploma in Education", fee: "MWK 400,000", duration: "2 years", description: "Teaching methods, curriculum design." },
+      { title: "Certificate in Mobile App Development", fee: "MWK 320,000", duration: "6 months", description: "Android, Flutter basics." },
+      { title: "Diploma in Environmental Studies", fee: "MWK 390,000", duration: "2 years", description: "Sustainability, climate change." },
+      { title: "Certificate in Digital Marketing", fee: "MWK 270,000", duration: "6 months", description: "SEO, social media, analytics." },
+      { title: "Diploma in Journalism", fee: "MWK 415,000", duration: "2 years", description: "Media ethics, reporting, editing." },
+      { title: "Certificate in Data Analysis", fee: "MWK 310,000", duration: "6 months", description: "Excel, Power BI, basic stats." }
+    ];
+
+    const perPage = 7;
+    let currentPage = 1;
+
+    function renderCourses() {
+      const start = (currentPage - 1) * perPage;
+      const end = start + perPage;
+      const visibleCourses = courses.slice(start, end);
+
+      const courseList = document.getElementById('courseList');
+      courseList.innerHTML = '';
+
+      visibleCourses.forEach(course => {
+        const div = document.createElement('div');
+        div.className = 'course';
+        div.innerHTML = `
+          <strong>${course.title}</strong>
+          <div class="details">
+            <p><strong>Fees:</strong> ${course.fee}</p>
+            <p><strong>Duration:</strong> ${course.duration}</p>
+            <p><strong>Description:</strong> ${course.description}</p>
+          </div>
+        `;
+        div.onclick = () => {
+          const details = div.querySelector('.details');
+          details.style.display = details.style.display === 'block' ? 'none' : 'block';
+        };
+        courseList.appendChild(div);
+      });
+    }
+
+    function renderPagination() {
+      const totalPages = Math.ceil(courses.length / perPage);
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add('active');
+        btn.onclick = () => {
+          currentPage = i;
+          renderCourses();
+          renderPagination();
+        };
+        pagination.appendChild(btn);
+      }
+    }
+
+    renderCourses();
+    renderPagination();
+  </script>
+</body>
+</html>

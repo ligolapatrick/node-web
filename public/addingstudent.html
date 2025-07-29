@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add New Student</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef2f3;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      background: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+
+    @media (max-width: 600px) {
+      form {
+        padding: 15px;
+      }
+      input, select, button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Add New Student</h1>
+  <form id="studentForm">
+    <label for="firstName">First Name</label>
+    <input type="text" name="firstName" required />
+
+    <label for="surname">Surname</label>
+    <input type="text" name="surname" required />
+
+    <label for="dob">Date of Birth</label>
+    <input type="date" name="dob" required />
+
+    <label for="phone">Phone Number</label>
+    <input type="text" name="phone" required />
+
+    <label for="course">Course</label>
+    <input type="text" name="course" id="courseField" readonly />
+
+    <label for="enrolled">Enrolled Year/Month</label>
+    <input type="month" name="enrolled" required />
+
+    <label for="semester">Semester/Year</label>
+    <input type="text" name="semester" placeholder="e.g. Semester 1 / 2025" required />
+
+    <label for="email">Email</label>
+    <input type="email" name="email" placeholder="e.g. example@gmail.com" required />    
+
+    <label for="result">Initial Result</label>
+    <input type="text" name="result" placeholder="Optional" />
+
+    <button type="submit">Register Student</button>
+  </form>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const course = urlParams.get('course');
+    document.getElementById('courseField').value = course;
+
+    document.getElementById('studentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+
+      const firstName = formData.get('firstName');
+      const surname = formData.get('surname');
+      const timestamp = Date.now();
+      const studentId = firstName.slice(0, 2).toUpperCase() + surname.slice(0, 2).toUpperCase() + '_' + timestamp;
+
+      const data = {
+        studentId,
+        firstName,
+        surname,
+        dob: formData.get('dob'),
+        phone: formData.get('phone'),
+        course: formData.get('course'),
+        enrolled: formData.get('enrolled'),
+        semester: formData.get('semester'),
+        email: formData.get('email'),
+        result: formData.get('result')
+      };
+
+      fetch('/add-student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(res => {
+        if (res.ok) {
+          alert(`Student registered with ID: ${studentId}`);
+          window.location.href = `/admin-dashboard?course=${course}`;
+        } else {
+          res.text().then(msg => alert('Error: ' + msg));
+        }
+      });
+    });
+  </script>
+<script>
+  fetch('/check-session')
+    .then(res => {
+      if (!res.ok) {
+        window.location.href = '/login';
+      }
+    });
+</script>
+
+</body>
+</html>

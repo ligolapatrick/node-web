@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Applicant Details</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #003366;
+    }
+
+    .detail {
+      margin: 10px 0;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .value {
+      margin-left: 10px;
+    }
+
+    a {
+      color: #007BFF;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Applicant Details</h2>
+    <div id="details"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    fetch(`/application/${id}`)
+      .then(res => res.json())
+      .then(app => {
+        const container = document.getElementById('details');
+        container.innerHTML = `
+          <div class="detail"><span class="label">Full Name:</span><span class="value">${app.firstName} ${app.surname}</span></div>
+          <div class="detail"><span class="label">Age:</span><span class="value">${app.age}</span></div>
+          <div class="detail"><span class="label">Date of Birth:</span><span class="value">${app.dob}</span></div>
+          <div class="detail"><span class="label">Email:</span><span class="value">${app.email}</span></div>
+          <div class="detail"><span class="label">Program:</span><span class="value">${app.program}</span></div>
+          <div class="detail"><span class="label">Certificate:</span><span class="value">${app.certificatePath ? `<a href="${app.certificatePath}" target="_blank">Download</a>` : 'None'}</span></div>
+        `;
+      });
+  </script>
+  <script>
+  fetch('/check-session')
+    .then(res => {
+      if (!res.ok) {
+        window.location.href = '/login';
+      }
+    });
+</script>
+</body>
+</html>

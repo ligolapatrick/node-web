@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Approved Applicants</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #003366;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header img {
+      height: 60px;
+      margin-right: 15px;
+    }
+
+    header h1 {
+      color: white;
+      font-size: 1.8rem;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #003366;
+      color: white;
+    }
+
+    a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      table, th, td {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="images/logo.png" alt="Patrick University Logo">
+    <h1>Patrick University</h1>
+  </header>
+
+  <div class="container">
+    <h2>Approved Applicants</h2>
+
+    <table id="approvedTable">
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>Program</th>
+          <th>Email</th>
+          <th>Certificate</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const tableBody = document.querySelector('#approvedTable tbody');
+
+    fetch('/approved-applications')
+      .then(res => res.json())
+      .then(data => {
+        tableBody.innerHTML = '';
+        data.forEach(app => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${app.firstName} ${app.surname}</td>
+            <td>${app.program}</td>
+            <td>${app.email}</td>
+            <td><a href="${app.certificatePath}" target="_blank">Download</a></td>
+          `;
+          tableBody.appendChild(row);
+        });
+      });
+
+      function requireLogin(req, res, next) {
+  if (!req.session.userId) {
+    return res.redirect('/');
+  }
+  next();
+}
+
+function requireRole(role) {
+  return (req, res, next) => {
+    if (req.session.role !== role) {
+      return res.status(403).send('Access denied');
+    }
+    next();
+  };
+}
+
+  </script>
+  <script>
+  fetch('/check-session')
+    .then(res => {
+      if (!res.ok) {
+        window.location.href = '/login';
+      }
+    });
+</script>
+
+</body>
+</html>

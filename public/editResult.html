@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Results</title>
+</head>
+<body>
+  <h2>Edit Results</h2>
+  <form id="resultForm">
+    <div id="subjectsContainer">
+      <div class="subject-entry">
+        <input type="text" name="subject" placeholder="Subject" required />
+        <input type="number" name="marks" placeholder="Marks" required />
+        <input type="text" name="grade" placeholder="Grade" required />
+        <input type="text" name="remarks" placeholder="Remarks" />
+      </div>
+    </div>
+    <button type="button" onclick="addSubject()">Add Another Subject</button>
+    <button type="submit">Save Results</button>
+  </form>
+
+  <script>
+    const studentId = new URLSearchParams(window.location.search).get('studentId');
+
+    function addSubject() {
+      const container = document.getElementById('subjectsContainer');
+      const entry = document.createElement('div');
+      entry.className = 'subject-entry';
+      entry.innerHTML = `
+        <input type="text" name="subject" placeholder="Subject" required />
+        <input type="number" name="marks" placeholder="Marks" required />
+        <input type="text" name="grade" placeholder="Grade" required />
+        <input type="text" name="remarks" placeholder="Remarks" />
+      `;
+      container.appendChild(entry);
+    }
+
+    document.getElementById('resultForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const entries = document.querySelectorAll('.subject-entry');
+      entries.forEach(entry => {
+        const subject = entry.querySelector('input[name="subject"]').value;
+        const marks = entry.querySelector('input[name="marks"]').value;
+        const grade = entry.querySelector('input[name="grade"]').value;
+        const remarks = entry.querySelector('input[name="remarks"]').value;
+
+        fetch('/api/results', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            studentId,
+            subject,
+            marks,
+            grade,
+            remarks
+          })
+        });
+      });
+
+      alert('Results saved successfully!');
+    });
+  </script>
+</body>
+</html>

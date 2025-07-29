@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create or Edit News Post</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #003366;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header img {
+      height: 60px;
+      margin-right: 15px;
+    }
+
+    header h1 {
+      color: white;
+      font-size: 1.8rem;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    h2 {
+      text-align: center;
+      color: #003366;
+      margin-top: 20px;
+    }
+
+    form {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px #ccc;
+    }
+
+    input, textarea {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    input[type="file"] {
+      padding: 5px;
+    }
+
+    button {
+      background-color: #003366;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="images/logo.png" alt="Patrick University Logo">
+    <h1>Patrick University</h1>
+  </header>
+
+  <h2 id="formTitle">Create News Post</h2>
+  <form id="newsForm" enctype="multipart/form-data">
+    <input type="text" name="title" placeholder="Post Title" required />
+    <textarea name="content" rows="5" placeholder="Write your news..." required></textarea>
+    <label>Optional Image or Video:</label>
+    <input type="file" name="media" accept=".jpg,.jpeg,.png,.mp4" />
+    <button type="submit">📢 Publish</button>
+  </form>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get('id');
+
+    if (postId) {
+      document.getElementById('formTitle').textContent = 'Edit News Post';
+      fetch(`/get-news/${postId}`)
+        .then(res => res.json())
+        .then(post => {
+          document.querySelector('input[name="title"]').value = post.title;
+          document.querySelector('textarea[name="content"]').value = post.content;
+          const hiddenId = document.createElement('input');
+          hiddenId.type = 'hidden';
+          hiddenId.name = 'id';
+          hiddenId.value = post.id;
+          document.getElementById('newsForm').appendChild(hiddenId);
+        });
+    }
+
+    document.getElementById('newsForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+
+      fetch('/create-news', {
+        method: 'POST',
+        body: formData
+      }).then(res => {
+        if (res.ok) {
+          alert(postId ? 'Post updated!' : 'Post created!');
+          window.location.href = '/post.html';
+        } else {
+          alert('Failed to save post');
+        }
+      });
+    });
+  </script>
+      <script>
+  fetch('/check-session')
+    .then(res => {
+      if (!res.ok) {
+        window.location.href = '/login';
+      }
+    });
+</script>
+</body>
+</html>

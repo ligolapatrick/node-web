@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Results</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #eef2f3;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #06365e;
+      padding: 15px 30px;
+      color: white;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    .menu-toggle {
+      font-size: 24px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    .sidebar {
+      display: none;
+      flex-direction: column;
+      background-color: #06365e;
+      padding: 20px;
+    }
+
+    .sidebar.active {
+      display: flex;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    .hero {
+      width: 100%;
+      max-height: 400px;
+      overflow: hidden;
+    }
+
+    .hero img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      display: block;
+    }
+
+    .results-section {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .results-section h2 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    thead {
+      background-color: #ecf0f1;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="images/logo.png" alt="Patrick University Logo" />
+    <h1>Patrick University</h1>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  </header>
+
+  <nav id="sidebar" class="sidebar">
+    <a href="/">Home</a>
+    <a href="/apply">Apply</a>
+    <a href="/login">Login</a>
+    <a href="/admin">Administration Portal</a>
+    <a href="/portal">Student Portal</a>
+  </nav>
+
+  <div class="hero">
+    <img src="images/campus.jpg" alt="Patrick University Campus" />
+  </div>
+
+  <section class="results-section">
+    <h2>Your Semester Results</h2>
+    <div id="resultsContainer"></div>
+  </section>
+
+  <script>
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('active');
+    }
+
+    const studentId = new URLSearchParams(window.location.search).get("studentId");
+
+    async function loadStudentResults() {
+      const res = await fetch(`/api/results?studentId=${studentId}`);
+      const results = await res.json();
+
+      const container = document.getElementById("resultsContainer");
+      container.innerHTML = "";
+
+      // Group by semester and sort by most recent
+      const grouped = {};
+      results.forEach(r => {
+        const key = `${r.semester} (${r.duration})`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(r);
+      });
+
+      const sortedSemesters = Object.entries(grouped).sort((a, b) => {
+        const aDur = a[0].match(/\((.*?)\)/)[1];
+        const bDur = b[0].match(/\((.*?)\)/)[1];
+        return new Date(bDur.split("–")[1]) - new Date(aDur.split("–")[1]);
+      });
+
+      sortedSemesters.forEach(([semesterLabel, rows]) => {
+        const section = document.createElement("div");
+        section.innerHTML = `<h3>${semesterLabel}</h3>`;
+        const table = document.createElement("table");
+        table.innerHTML = `
+          <thead>
+            <tr><th>Subject</th><th>Marks</th><th>Grade</th><th>Remarks</th></tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td>${r.subject}</td>
+                <td>${r.marks}</td>
+                <td>${r.grade}</td>
+                <td>${r.remarks}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        `;
+        section.appendChild(table);
+        container.appendChild(section);
+      });
+    }
+
+    loadStudentResults();
+  </script>
+
+</body>
+</html>

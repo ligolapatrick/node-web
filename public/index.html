@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patrick University</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(to right, #d4fc79, #96e6a1);
+      color: #333;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #06365e;
+      padding: 15px 30px;
+      color: white;
+      position: relative;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .menu-toggle {
+      font-size: 24px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: none;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      background-color: #06365e;
+      padding: 10px 0;
+      gap: 20px;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    section.hero {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    section.hero img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-text {
+      position: absolute;
+      top: 30%;
+      left: 10%;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+    }
+
+    .hero-text h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .hero-text p {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .hero-text a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #2ecc71;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    .hero-text a:hover {
+      background-color: #27ae60;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 40px 20px;
+      background-color: #ffffffcc;
+    }
+
+    .feature-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    .feature-card a {
+      color: #3498db;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .feature-card a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #06365e;
+      color: white;
+    }
+
+    /* 📱 Mobile styles */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      header h1 {
+        font-size: 1.4rem;
+        text-align: left;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .sidebar {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background-color: #06365e;
+        z-index: 1000;
+        padding: 20px;
+      }
+
+      .sidebar.active {
+        display: flex;
+      }
+
+      .sidebar a {
+        margin: 10px 0;
+        font-size: 1rem;
+      }
+
+      .hero-text {
+        top: 20%;
+        left: 5%;
+        padding: 15px;
+        max-width: 90%;
+      }
+
+      .hero-text h2 {
+        font-size: 1.5rem;
+      }
+
+      .hero-text p {
+        font-size: 1rem;
+      }
+
+      .hero-text a {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .hero-text {
+        top: 35%;
+        left: 15%;
+        max-width: 600px;
+      }
+
+      .hero-text h2 {
+        font-size: 2.5rem;
+      }
+
+      .hero-text p {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <img src="images/logo.png" alt="Patrick University Logo">
+    <h1>Patrick University</h1>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <nav id="sidebar" class="sidebar">
+    <a href="/">Home</a>
+    <a href="/apply">Apply</a>
+    <a href="/admission">Admission</a>
+    <a href="/admin">Administration Portal</a>
+    <a href="/portal">Student Portal</a>
+  </nav>
+
+  <!-- Campus Image Section -->
+  <section class="hero">
+    <img src="images/campus.jpg" alt="Patrick University Campus">
+    <div class="hero-text">
+      <h2>Empowering Students Since 2025</h2>
+      <p>Your future starts here. Discover programs, apply online, and become a Patrick scholar.</p>
+      <a href="/apply.html">Apply Now</a>
+    </div>
+  </section>
+
+  <!-- Feature Cards -->
+  <section class="features">
+    <div class="feature-card">
+      <h3>📚 Admi & Staff</h3>
+      <a href="/staffmembers.html">StaffMembers</a>
+    </div>
+    <div class="feature-card">
+      <h3>🕒 Admission</h3>
+      <a href="/admission.html">Admission</a>
+    </div>
+    <div class="feature-card">
+      <h3>📝 Online Application</h3>
+      <a href="/apply">Start Application</a>
+    </div>
+    <div class="feature-card">
+      <h3>👨‍🏫 Staff Portal</h3>
+      <a href="/staff.html">Login as Staff</a>
+    </div>
+    <div class="feature-card">
+      <h3>📰 News & Updates</h3>
+      <a href="/news.html">Read News</a>
+    </div>
+    <div class="feature-card">
+      <h3>📘 Course Management</h3>
+      <a href="/course.html">Manage Courses</a>
+    </div>
+    <div class="feature-card">
+      <h3>📤 Document Uploads</h3>
+      <a href="/documents.html">Upload Files</a>
+    </div>
+    <div class="feature-card">
+      <h3>🏫 Virtual Campus Tour</h3>
+      <a href="/tour.html">Take a Tour</a>
+    </div>
+    <div class="feature-card">
+      <h3>🎓 Alumni Portal</h3>
+      <a href="/alumni.html">Connect with Alumni</a>
+    </div>
+    <div class="feature-card">
+      <h3>📇 Contact Directory</h3>
+      <a href="/contact.html">Find Contacts</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Patrick University. All rights reserved.</p>
+  </footer>
+
+  <!-- JavaScript for sidebar toggle -->
+  <script>
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('active');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Portal</title>
+ 
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(to right, #d4fc79, #96e6a1);
+      color: #333;
+            background: url('images/campus.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #06365e;
+      padding: 15px 30px;
+      color: white;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    .menu-toggle {
+      font-size: 24px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    .sidebar {
+      display: none;
+      flex-direction: column;
+      background-color: #06365e;
+      padding: 20px;
+    }
+
+    .sidebar.active {
+      display: flex;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 30px 0;
+      font-size: 2rem;
+    }
+
+    form {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #27ae60;
+    }
+
+    .hero {
+      width: 100%;
+      margin-top: 40px;
+    }
+
+    .hero img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-text {
+      text-align: center;
+      padding: 20px;
+      background-color: #ffffffcc;
+    }
+
+    .hero-text h2 {
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    .hero-text p {
+      margin-bottom: 15px;
+    }
+
+    .hero-text a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+
+    .hero-text a:hover {
+      background-color: #2980b9;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.2rem;
+      }
+
+      form {
+        width: 90%;
+      }
+
+      .hero-text {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="images/logo.png" alt="Patrick University Logo">
+    <h1>Patrick University</h1>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <nav id="sidebar" class="sidebar">
+    <a href="/">Home</a>
+    <a href="/apply">Apply</a>
+    <a href="/login">Login</a>
+    <a href="/admin">Admin</a>
+    <a href="/portal">Student Portal</a>
+  </nav>
+
+  <h1>Student Portal</h1>
+
+  <form id="portalForm">
+    <label for="course">Select Your Course</label>
+    <select name="course" id="courseSelect" required>
+      <option value="">-- Choose Course --</option>
+      <option value="Computer Science">Computer Science</option>
+      <option value="Business Management">Business Management</option>
+      <option value="Health Promotion">Health Promotion</option>
+    </select>
+
+    <label for="email">Enter Your Email</label>
+    <input type="email" name="email" placeholder="e.g. student@example.com" required />
+
+    <label for="studentId">Enter Your Student ID</label>
+    <input type="text" name="studentId" placeholder="e.g. PALI_1723456789012" required />
+
+    <button type="submit">Login</button>
+  </form>
+
+  <section class="hero">
+    <img src="images/campus.jpg" alt="Patrick University Campus" />
+    <div class="hero-text">
+      <h2>Empowering Students Since 2025</h2>
+      <p>Your future starts here. Discover programs, apply online, and become a Patrick scholar.</p>
+      <a href="/apply.html">Apply Now</a>
+    </div>
+  </section>
+
+  <script>
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('active');
+    }
+
+    document.getElementById("portalForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const course = formData.get("course");
+      const email = formData.get("email");
+      const studentId = formData.get("studentId");
+
+      const res = await fetch(`/api/students?course=${course}`);
+      const students = await res.json();
+      const match = students.find(s => s.studentId === studentId && s.email === email);
+
+      if (match) {
+        window.location.href = `/studentresult.html?studentId=${studentId}`;
+      } else {
+        alert("Student not found. Please check your details.");
+      }
+    });
+  </script>
+</body>
+</html>

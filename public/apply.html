@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Patrick University Application</title>
+    <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(to right, #d4fc79, #96e6a1);
+      padding: 40px;
+      color: #333;
+         background: url('images/campus.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+  header {
+    background-color: #003366;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+  }
+  
+  header img {
+    height: 60px;
+    margin-right: 15px;
+  }
+  
+  header h1 {
+    color: white;
+    font-size: 1.8rem;
+    flex-grow: 1;
+  }
+  
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+
+
+<body>
+  <header>
+    <img src="images/logo.png" alt="Patrick University Logo">
+    <h1>Patrick University</h1>
+  </header>
+
+  <form id="applicationForm" enctype="multipart/form-data">
+    <label>First Name:</label>
+    <input type="text" name="firstName" required />
+
+    <label>Surname:</label>
+    <input type="text" name="surname" required />
+
+    <label>Age:</label>
+    <input type="number" name="age" required />
+
+    <label>Date of Birth:</label>
+    <input type="date" name="dob" required />
+
+    <label>Email:</label>
+    <input type="email" name="email" required />
+
+    <label>Program:</label>
+    <select name="program" required>
+      <option value="">Select Program</option>
+      <option value="Computer Science">Computer Science</option>
+      <option value="Business Management">Business Management</option>
+      <option value="Health Promotion">Health Promotion</option>
+    </select>
+
+    <label>Upload Certificate (PDF or Image):</label>
+    <input type="file" name="certificate" accept=".pdf,.jpg,.jpeg,.png" required />
+
+    <button type="submit">Submit Application</button>
+  </form>
+
+  <script>
+    document.getElementById("applicationForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+
+      const res = await fetch("/api/apply", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        alert("Application submitted successfully!");
+        this.reset();
+      } else {
+        alert("Error: " + result.error);
+      }
+    });
+  </script>
+</body>
+</html>

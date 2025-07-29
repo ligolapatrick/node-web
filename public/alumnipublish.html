@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Review Alumni Stories</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+  font-family: 'Verdana', sans-serif;
+  background-color: #f4f6f7;
+  padding: 20px;
+}
+
+h2 {
+  color: #34495e;
+}
+
+.story-box {
+  background-color: #ffffff;
+  border: 1px solid #bdc3c7;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 6px;
+}
+
+form {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button[type="submit"] {
+  background-color: #27ae60;
+  color: white;
+}
+
+form[action="/decline-alumni-story"] button {
+  background-color: #e74c3c;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+img {
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+  </style>
+  <script>
+    async function loadStories() {
+      const res = await fetch('/get-pending-alumni');
+      const stories = await res.json();
+      const container = document.getElementById('storyContainer');
+      container.innerHTML = '';
+
+      stories.forEach(story => {
+        const div = document.createElement('div');
+        div.className = 'story-box';
+        div.innerHTML = `
+          <h3>${story.name} (${story.course}, ${story.year})</h3>
+          <p><strong>Email:</strong> ${story.email}</p>
+          <p><strong>Job:</strong> ${story.job}</p>
+          <p>${story.story}</p>
+          ${story.photo ? `<img src="${story.photo}" width="150">` : ''}
+          <form method="POST" action="/approve-alumni-story">
+            <input type="hidden" name="id" value="${story.id}">
+            <button type="submit">Approve</button>
+          </form>
+          <form method="POST" action="/decline-alumni-story">
+            <input type="hidden" name="id" value="${story.id}">
+            <button type="submit">Decline</button>
+          </form>
+          <hr>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    window.onload = loadStories;
+  </script>
+</head>
+<body>
+  <h2>Pending Alumni Stories</h2>
+  <div id="storyContainer"></div>
+</body>
+</html>

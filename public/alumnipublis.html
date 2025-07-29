@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Review Alumni Submissions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+    }
+    .story {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+    .story img {
+      max-width: 100%;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    button {
+      margin-right: 10px;
+      padding: 8px 16px;
+      background: #003366;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button.decline {
+      background: #aa0000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Pending Alumni Stories</h2>
+    <div id="pendingList"></div>
+  </div>
+
+  <script>
+    fetch('/get-pending-alumni')
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('pendingList');
+        data.forEach((story, index) => {
+          const div = document.createElement('div');
+          div.className = 'story';
+          div.innerHTML = `
+            <h3>${story.name} (${story.course}, ${story.year})</h3>
+            <p><strong>Current Role:</strong> ${story.job}</p>
+            <p>${story.story}</p>
+            ${story.photo ? `<img src="${story.photo}" alt="${story.name}">` : ''}
+            <form method="POST" action="/approve-alumni-story">
+              <input type="hidden" name="index" value="${index}" />
+              <button type="submit">Approve</button>
+            </form>
+            <form method="POST" action="/decline-alumni-story">
+              <input type="hidden" name="index" value="${index}" />
+              <button type="submit" class="decline">Decline</button>
+            </form>
+          `;
+          list.appendChild(div);
+        });
+      });
+  </script>
+</body>
+</html>

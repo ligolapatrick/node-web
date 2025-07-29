@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Alumni Stories</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="alumni-mobile.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f8ff;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h2 {
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    .filters {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 8px;
+      margin: 0 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .story-box {
+      background-color: #ffffff;
+      border: 1px solid #dcdcdc;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .story-box img {
+      max-width: 100%;
+      height: auto;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .pagination button {
+      padding: 8px 12px;
+      margin: 0 5px;
+      border: none;
+      background-color: #2980b9;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background-color: #1f6391;
+    }
+
+    a {
+      text-decoration: none;
+      color: #2980b9;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      select {
+        width: 100%;
+        margin: 10px 0;
+      }
+
+      .pagination button {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Alumni Success Stories</h2>
+  <p style="text-align: center;">
+    <a href="/alumnistory.html">📨 Submit Your Story</a>
+  </p>
+
+  <div class="filters">
+    <select id="courseFilter">
+      <option value="">All Courses</option>
+      <option value="Computer Science">Computer Science</option>
+      <option value="Community Development">Community Development</option>
+      <option value="ICT">ICT</option>
+      <!-- Add more courses as needed -->
+    </select>
+
+    <select id="yearFilter">
+      <option value="">All Years</option>
+      <option value="2022">2022</option>
+      <option value="2023">2023</option>
+      <option value="2024">2024</option>
+      <!-- Add more years as needed -->
+    </select>
+  </div>
+
+  <div id="publishedContainer"></div>
+  <div class="pagination" id="pagination"></div>
+
+  <script>
+    let currentPage = 1;
+    let totalPages = 1;
+
+    async function fetchTotalPages(course = '', year = '', limit = 5) {
+      const params = new URLSearchParams({ course, year });
+      const res = await fetch(`/get-published-alumni-count?${params.toString()}`);
+      const data = await res.json();
+      return Math.ceil(data.count / limit);
+    }
+
+    async function loadPublishedStories(page = 1) {
+      const course = document.getElementById('courseFilter').value;
+      const year = document.getElementById('yearFilter').value;
+      const limit = 5;
+
+      const params = new URLSearchParams({ page, limit });
+      if (course) params.append('course', course);
+      if (year) params.append('year', year);
+
+      const res = await fetch(`/get-published-alumni?${params.toString()}`);
+      const stories = await res.json();
+      const container = document.getElementById('publishedContainer');
+      container.innerHTML = '';
+
+      if (stories.length === 0) {
+        container.innerHTML = '<p>No approved stories found.</p>';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+
+      stories.forEach(story => {
+        const div = document.createElement('div');
+        div.className = 'story-box';
+        div.innerHTML = `
+          <h3>${story.name} (${story.course}, ${story.year})</h3>
+          <p><strong>Job:</strong> ${story.job}</p>
+          <p>${story.story}</p>
+          ${story.photo ? `<img src="${story.photo}" alt="Alumni photo">` : ''}
+        `;
+        container.appendChild(div);
+      });
+
+      totalPages = await fetchTotalPages(course, year, limit);
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add('active');
+        btn.onclick = () => {
+          currentPage = i;
+          loadPublishedStories(i);
+        };
+        pagination.appendChild(btn);
+      }
+    }
+
+    document.getElementById('courseFilter').addEventListener('change', () => {
+      currentPage = 1;
+      loadPublishedStories(currentPage);
+    });
+
+    document.getElementById('yearFilter').addEventListener('change', () => {
+      currentPage = 1;
+      loadPublishedStories(currentPage);
+    });
+
+    window.onload = () => loadPublishedStories(currentPage);
+  </script>
+</body>
+</html>

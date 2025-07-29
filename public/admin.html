@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Access</title>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <img src="images/logo.png" alt="Patrick University Logo">
+    <h1>Patrick University</h1>
+  </header>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: #007BFF;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: -5px;
+    }
+    .hidden {
+      display: none;
+    }
+    header {
+    background-color: #003366;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+  }
+  
+  header img {
+    height: 60px;
+    margin-right: 15px;
+  }
+  
+  header h1 {
+    color: white;
+    font-size: 1.8rem;
+    flex-grow: 1;
+  }
+  /* 📱 Mobile styles */
+  @media (max-width: 768px) {
+    header {
+      flex-direction: row;
+      align-items: center;
+    }
+  
+    .menu-toggle {
+      display: block;
+    }
+  
+    .sidebar {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 70px;
+      left: 0;
+      width: 100%;
+      background-color: #002244;
+      z-index: 1000;
+    }
+  
+    .sidebar.active {
+      display: flex;
+    }
+  
+    .sidebar a {
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+  
+    .hero-text {
+      top: 20%;
+      left: 5%;
+      padding: 15px;
+      max-width: 90%;
+    }
+  
+    .hero-text h2 {
+      font-size: 1.5rem;
+    }
+  
+    .hero-text p {
+      font-size: 1rem;
+    }
+  
+    .hero-text a {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
+  }
+  
+ 
+  </style>
+</head>
+<body>
+  <h1>Admin Access</h1>
+
+  <!-- Create Account Form -->
+  <form id="createForm">
+    <h2>Create Admin Account</h2>
+    <input type="text" name="name" placeholder="Admin Name" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="text" name="token" placeholder="Enter Token" required>
+    <select name="course" required>
+      <option value="">Select Course</option>
+      <option value="Computer Science">Computer Science</option>
+      <option value="Business Administration">Business Administration</option>
+      <option value="Public Health">Public Health</option>
+    </select>
+    <button type="submit">Create Account</button>
+    <button type="button" class="toggle-btn" onclick="showLogin()">Already have an account?</button>
+  </form>
+
+  <!-- Login Form -->
+  <form id="loginForm" class="hidden">
+    <h2>Admin Login</h2>
+    <input type="text" name="name" placeholder="Admin Name" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+    <button type="button" class="toggle-btn" onclick="showCreate()">Don't have an account?</button>
+  </form>
+
+  <script>
+    const createForm = document.getElementById('createForm');
+    const loginForm = document.getElementById('loginForm');
+  
+    function showLogin() {
+      createForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+    }
+  
+    function showCreate() {
+      loginForm.classList.add('hidden');
+      createForm.classList.remove('hidden');
+    }
+  
+    // ✅ Handle Create Admin
+    createForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(createForm);
+      const data = {
+        name: formData.get('name'),
+        password: formData.get('password'),
+        token: formData.get('token'),
+        course: formData.get('course')
+      };
+  
+      fetch('/create-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(res => {
+        if (res.ok) {
+          window.location.href = '/admin-dashboard?course=' + data.course;
+        } else {
+          res.text().then(msg => alert(msg));
+        }
+      });
+    });
+  
+    // ✅ Handle Admin Login
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(loginForm);
+      const data = {
+        name: formData.get('name'),
+        password: formData.get('password')
+      };
+  
+      fetch('/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(res => {
+        if (res.ok) {
+          res.text().then(course => {
+            window.location.href = '/admin-dashboard?course=' + course;
+          });
+        } else {
+          res.text().then(msg => alert(msg));
+        }
+      });
+    });
+  </script>
+  
+</body>
+</html>

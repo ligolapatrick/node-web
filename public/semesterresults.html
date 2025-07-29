@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Semester Results Editor</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f6f8;
+      color: #333;
+    }
+
+    h1, h2, h3 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      max-width: 200px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    thead {
+      background-color: #ecf0f1;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .deleteBtn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .deleteBtn:hover {
+      background-color: #c0392b;
+    }
+
+    @media (max-width: 768px) {
+      input, button {
+        width: 100%;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      tr {
+        margin-bottom: 15px;
+      }
+
+      td {
+        padding-left: 50%;
+        position: relative;
+      }
+
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        font-weight: bold;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Semester Results Editor</h1>
+
+  <section class="edit-section">
+    <h2>Select or Enter Semester</h2>
+    <form id="fullSemesterForm">
+      <select id="semesterSelect"></select>
+      <input type="text" name="semester" placeholder="Or type new Semester Name" />
+      <input type="text" name="duration" placeholder="Duration (e.g. July2025–Dec2026)" required />
+      <button type="button" id="addRowBtn">➕ Add Subject</button>
+
+      <table id="editTable">
+        <thead>
+          <tr><th>Subject</th><th>Marks</th><th>Grade</th><th>Remarks</th><th>Action</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <button type="submit" id="submitBtn">💾 Save Semester & Results</button>
+    </form>
+  </section>
+
+  <section class="display-section">
+    <h2>All Saved Results</h2>
+    <div id="resultsContainer"></div>
+  </section>
+
+  <script>
+    const studentId = new URLSearchParams(window.location.search).get("studentId") || "S001";
+
+    function addRow(data = {}) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><input type="text" value="${data.subject || ""}" required /></td>
+        <td><input type="number" value="${data.marks || ""}" required /></td>
+        <td><input type="text" value="${data.grade || ""}" /></td>
+        <td><input type="text" value="${data.remarks || ""}" /></td>
+        <td><button class="deleteBtn">🗑️</button></td>
+      `;
+      row.querySelector(".deleteBtn").onclick = () => row.remove();
+      document.querySelector("#editTable tbody").appendChild(row);
+    }
+
+    document.getElementById("addRowBtn").onclick = () => addRow();
+
+    document.getElementById("fullSemesterForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const semester = formData.get("semester") || document.getElementById("semesterSelect").value;
+      const duration = formData.get("duration");
+
+      const rows = document.querySelectorAll("#editTable tbody tr");
+      const results = Array.from(rows).map(row => {
+        const inputs = row.querySelectorAll("input");
+        return {
+          subject: inputs[0].value,
+          marks: parseInt(inputs[1].value),
+          grade: inputs[2].value,
+          remarks: inputs[3].value
+        };
+      });
+
+      await fetch("/api/save-semester-and-results", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId, semester, duration, results })
+      });
+
+      alert("Semester and results saved successfully!");
+      this.reset();
+      document.querySelector("#editTable tbody").innerHTML = "";
+      await loadAllResultsForStudent();
+    });
+
+    async function loadSemesters() {
+      const res = await fetch("/api/semesters");
+      const semesters = await res.json();
+
+      const select = document.getElementById("semesterSelect");
+      select.innerHTML = "";
+      semesters.forEach(s => {
+        const option = document.createElement("option");
+        option.value = s.semester;
+        option.textContent = `${s.semester} (${s.duration})`;
+        select.appendChild(option);
+      });
+
+      if (semesters.length > 0) {
+        select.value = semesters[semesters.length - 1].semester;
+      }
+    }
+
+    async function loadAllResultsForStudent() {
+      const res = await fetch(`/api/results?studentId=${studentId}`);
+      const results = await res.json();
+
+      const container = document.getElementById("resultsContainer");
+      container.innerHTML = "";
+
+      const grouped = {};
+      results.forEach(r => {
+        const key = `${r.semester} (${r.duration})`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(r);
+      });
+
+      Object.entries(grouped).forEach(([semesterLabel, rows]) => {
+        const section = document.createElement("section");
+        section.innerHTML = `<h3>${semesterLabel}</h3>`;
+        const table = document.createElement("table");
+        table.innerHTML = `
+          <thead>
+            <tr><th>Subject</th><th>Marks</th><th>Grade</th><th>Remarks</th></tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td>${r.subject}</td>
+                <td>${r.marks}</td>
+                <td>${r.grade}</td>
+                <td>${r.remarks}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        `;
+        section.appendChild(table);
+        container.appendChild(section);
+      });
+    }
+
+    loadSemesters().then(() => loadAllResultsForStudent());
+  </script>
+  <script>
+  fetch('/check-session')
+    .then(res => {
+      if (!res.ok) {
+        window.location.href = '/login';
+      }
+    });
+</script>
+</body>
+</html>

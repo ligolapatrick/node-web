@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lecturer Profiles | Patrick University</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: url('images/campus.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #06365e;
+      padding: 15px 30px;
+      color: white;
+      position: relative;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: rgba(255,255,255,0.95);
+      border-radius: 12px;
+    }
+
+    h2 {
+      color: #003366;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .staff-card {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .staff-card:hover {
+      background-color: #eef;
+    }
+
+    .staff-photo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 20px;
+    }
+
+    .staff-info {
+      flex-grow: 1;
+    }
+
+    .staff-info h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #003366;
+    }
+
+    .staff-info p {
+      margin: 5px 0;
+      font-size: 0.95rem;
+    }
+
+    .bio {
+      display: none;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      padding-left: 10px;
+      border-left: 3px solid #003366;
+    }
+
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .pagination button {
+      margin: 0 5px;
+      padding: 8px 12px;
+      background-color: #003366;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background-color: #0055aa;
+    }
+
+    .pagination button:hover {
+      background-color: #0055aa;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.4rem;
+        text-align: left;
+      }
+
+      .staff-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .staff-photo {
+        margin-bottom: 10px;
+      }
+
+      .staff-info h3 {
+        font-size: 1rem;
+      }
+
+      .staff-info p {
+        font-size: 0.9rem;
+      }
+
+      .bio {
+        font-size: 0.85rem;
+      }
+
+      .pagination button {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="images/logo.png" alt="Patrick University Logo">
+    <h1>Patrick University</h1>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  </header>
+
+  <div class="container">
+    <h2>Meet Our Lecturers</h2>
+    <div id="staffList"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <script>
+    const staffMembers = [
+      { name: "Dr. Chikondi Banda", dept: "Computer Science", courses: "Diploma in Computer Science", bio: "Specializes in backend development, data structures, and software architecture.", photo: "images/campus.jpg" },
+      { name: "Ms. Thoko Mbewe", dept: "Community Development", courses: "Diploma in Community Development", bio: "Passionate about social change and grassroots empowerment.", photo: "images/staff2.jpg" },
+      { name: "Mr. Blessings Phiri", dept: "ICT", courses: "Certificate in ICT Fundamentals", bio: "Teaches computer literacy, internet safety, and office applications.", photo: "images/staff3.jpg" },
+      { name: "Mrs. Grace Tembo", dept: "Business Administration", courses: "Diploma in Business Administration", bio: "Expert in finance, marketing, and entrepreneurship.", photo: "images/staff4.jpg" },
+      { name: "Mr. Kelvin Mwale", dept: "Agriculture", courses: "Diploma in Agriculture", bio: "Focuses on crop science and agribusiness.", photo: "images/staff5.jpg" },
+      { name: "Dr. Linda Chirwa", dept: "Public Health", courses: "Diploma in Public Health", bio: "Specialist in epidemiology and health systems.", photo: "images/staff6.jpg" },
+      { name: "Mr. Peter Kumwenda", dept: "Education", courses: "Diploma in Education", bio: "Experienced in curriculum design and pedagogy.", photo: "images/staff7.jpg" },
+      { name: "Ms. Naomi Zulu", dept: "ICT", courses: "Certificate in Web Design", bio: "Teaches HTML, CSS, and UI/UX fundamentals.", photo: "images/staff8.jpg" },
+      { name: "Mr. John Banda", dept: "Journalism", courses: "Diploma in Journalism", bio: "Media ethics and investigative reporting.", photo: "images/staff9.jpg" },
+      { name: "Ms. Ruth Mvula", dept: "Digital Marketing", courses: "Certificate in Digital Marketing", bio: "SEO, social media, and analytics.", photo: "images/staff10.jpg" },
+      { name: "Mr. Isaac Nkhoma", dept: "Data Analysis", courses: "Certificate in Data Analysis", bio: "Excel, Power BI, and statistics.", photo: "images/staff11.jpg" },
+      { name: "Dr. Mercy Phiri", dept: "Environmental Studies", courses: "Diploma in Environmental Studies", bio: "Sustainability and climate change.", photo: "images/staff12.jpg" },
+      { name: "Mr. Joseph Mbewe", dept: "Mobile Development", courses: "Certificate in Mobile App Development", bio: "Android and Flutter basics.", photo: "images/staff13.jpg" },
+      { name: "Ms. Loveness Chikafa", dept: "Graphic Design", courses: "Certificate in Graphic Design", bio: "Photoshop, Illustrator, and branding.", photo: "images/staff14.jpg" },
+    ];
+
+    const perPage = 7;
+    let currentPage = 1;
+
+    function renderStaff() {
+      const start = (currentPage - 1) * perPage;
+      const end = start + perPage;
+      const visibleStaff = staffMembers.slice(start, end);
+
+      const staffList = document.getElementById('staffList');
+      staffList.innerHTML = '';
+
+      visibleStaff.forEach(member => {
+        const card = document.createElement('div');
+        card.className = 'staff-card';
+        card.innerHTML = `
+          <img src="${member.photo}" alt="${member.name}" class="staff-photo">
+          <div class="staff-info">
+            <h3>${member.name}</h3>
+            <p>Department: ${member.dept}</p>
+            <p>Courses: ${member.courses}</p>
+            <div class="bio">${member.bio}</div>
+          </div>
+        `;
+        card.onclick = () => {
+          const bio = card.querySelector('.bio');
+          bio.style.display = bio.style.display === 'block' ? 'none' : 'block';
+        };
+        staffList.appendChild(card);
+      });
+    }
+
+    function renderPagination() {
+      const totalPages = Math.ceil(staffMembers.length / perPage);
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add('active');
+        btn.onclick = () => {
+          currentPage = i;
+          renderStaff();
+          renderPagination();
+        };
+              pagination.appendChild(btn);
+      }
+    }
+
+    // Initial render
+    renderStaff();
+    renderPagination();
+  </script>
+</body>
+</html>

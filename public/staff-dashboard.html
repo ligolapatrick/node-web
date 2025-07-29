@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f8ff;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #003366;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header img {
+      height: 60px;
+      margin-right: 15px;
+    }
+
+    header h1 {
+      color: white;
+      font-size: 1.8rem;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .filters {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    select, input[type="date"], button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #003366;
+      color: white;
+    }
+
+    .approve-btn {
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      margin-right: 5px;
+    }
+
+    .reject-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+    }
+
+    a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      table, th, td {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="images/logo.png" alt="Patrick University Logo">
+    <h1>Patrick University</h1>
+  </header>
+
+  <div class="container">
+    <h2>Staff Dashboard</h2>
+
+    <div class="filters">
+      <select id="courseFilter">
+        <option value="">All Courses</option>
+        <option value="Computer Science">Computer Science</option>
+        <option value="Business Administration">Business Administration</option>
+        <option value="Public Health">Public Health</option>
+      </select>
+
+      <input type="date" id="dateFilter" />
+
+      <button onclick="printTable()">🖨️ Print</button>
+      <button onclick="exportCSV()">📥 Export CSV</button>
+    </div>
+
+    <p id="approvedCount" style="font-weight: bold; color: #003366;">Approved Applicants: ...</p>
+
+    <a href="approved.html">View Approved Applicants</a>/
+     <a href="post.html">Post</a>/
+     <a href="alumnipublish.html">Review Alumni Stories</a>
+
+
+    <table id="applicationsTable">
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>Program</th>
+          <th>Email</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const courseFilter = document.getElementById('courseFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const tableBody = document.querySelector('#applicationsTable tbody');
+
+    function fetchApplications() {
+      const course = courseFilter.value;
+      const date = dateFilter.value;
+      let url = '/get-applications';
+      const params = [];
+
+      if (course) params.push(`program=${encodeURIComponent(course)}`);
+      if (date) params.push(`date=${encodeURIComponent(date)}`);
+      if (params.length) url += '?' + params.join('&');
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          tableBody.innerHTML = '';
+          data.forEach(app => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td><a href="details.html?id=${app.id}">${app.firstName} ${app.surname}</a></td>
+              <td>${app.program}</td>
+              <td>${app.email}</td>
+              <td>
+                <button class="approve-btn" onclick="updateStatus(${app.id}, 'Approved')">✅ Approve</button>
+                <button class="reject-btn" onclick="updateStatus(${app.id}, 'Rejected')">❌ Reject</button>
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+        });
+
+      fetch('/approved-count')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('approvedCount').textContent = `Approved Applicants: ${data.count}`;
+        });
+    }
+
+    function updateStatus(id, status) {
+      fetch('/update-application-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status })
+      }).then(res => {
+        if (res.ok) {
+          fetchApplications();
+        } else {
+          res.text().then(msg => alert(msg));
+        }
+      });
+    }
+
+    function printTable() {
+      window.print();
+    }
+
+    function exportCSV() {
+      let csv = "Full Name,Program,Email\n";
+      document.querySelectorAll('#applicationsTable tbody tr').forEach(row => {
+        const cells = row.querySelectorAll('td');
+        csv += `${cells[0].textContent},${cells[1].textContent},${cells[2].textContent}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'applications.csv';
+      link.click();
+    }
+
+    courseFilter.addEventListener('change', fetchApplications);
+    dateFilter.addEventListener('change', fetchApplications);
+
+    fetchApplications();
+  </script>
+  <script>
+  fetch('/check-session')
+    .then(res => {
+      if (!res.ok) {
+        window.location.href = '/login';
+      }
+    });
+</script>
+</body>
+</html>

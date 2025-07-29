@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef2f3;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+    .top-actions {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .top-actions a {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #007BFF;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .top-actions a:hover {
+      background: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background: #007BFF;
+      color: white;
+    }
+    td a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+    td a:hover {
+      text-decoration: underline;
+    }
+
+    /* 📱 Responsive Design */
+    @media (max-width: 768px) {
+      table, .top-actions a {
+        font-size: 14px;
+      }
+      th, td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+
+  <div class="top-actions">
+    <a href="addingstudent.html?course=" id="addStudentLink">➕ Add New Student</a>
+  </div>
+
+  <table id="studentTable">
+    <thead>
+      <tr>
+        <th>Student ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Course</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Student rows will be inserted here -->
+    </tbody>
+  </table>
+  
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const course = urlParams.get('course');
+  
+    // Update Add Student link with course
+    document.getElementById('addStudentLink').href = `addingstudent.html?course=${course}`;
+  
+    // Load students by course
+    fetch(`/api/students?course=${course}`)
+      .then(res => res.json())
+      .then(data => {
+        const tableBody = document.querySelector('#studentTable tbody');
+  
+        data.forEach(student => {
+          const fullName = `${student.firstName} ${student.surname}`;
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${student.studentId}</td>
+            <td><a href="semesterresults.html?studentId=${student.studentId}">${fullName}</a></td>
+            <td>${student.email}</td>
+            <td>${student.phone}</td>
+            <td>${student.course}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      });
+
+      
+  </script>
+  <script>
+  fetch('/check-session')
+    .then(res => {
+      if (!res.ok) {
+        window.location.href = '/login';
+      }
+    });
+</script>
+</body>
+</html>
